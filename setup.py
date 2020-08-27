@@ -20,5 +20,5 @@ setup(
     author_email='',
     url='https://github.com/koan-analytics/fracpaqpy',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=['fracpaq']
 )
