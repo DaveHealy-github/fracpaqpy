@@ -246,5 +246,5 @@ def colored_bar(left, height, z=None, width=0.8, bottom=0, ax=None, color='b', *
     coll = PatchCollection(rects, array=z, **kwargs)
     coll.set_color(color)
     ax.add_collection(coll)
-#    ax.autoscale()
+    # ax.autoscale()
     return coll
