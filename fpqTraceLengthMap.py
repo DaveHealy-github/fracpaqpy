@@ -77,22 +77,20 @@ sc = mc.LineCollection(traces, colors=tracecolours,
                        linewidths=1, cmap=cmo.cm.haline, norm=colors.PowerNorm(gamma=0.5))
 
 #   get plot limits 
-nodelist = xnodelist 
-nodelist.extend(ynodelist)
-xmin, xmax, ymin, ymax = fpq.getPlotLimits(nodelist) 
+xmin, xmax, ymin, ymax = fpq.getPlotLimits(xnodelist, ynodelist) 
  
 #   plot the traces 
 fig, ax = plt.subplots(figsize=(xSize,ySize))
 p = ax.add_collection(sc)
-plt.xlabel('X, pixels')
-plt.ylabel('Y, pixels')
-plt.xlim(xmin, xmax)
-plt.ylim(ymin, ymax) 
-plt.gca().set_aspect('equal')
-plt.grid(bGrid)
+ax.set_xlabel('X, pixels')
+ax.set_ylabel('Y, pixels')
+ax.set_xlim(xmin, xmax)
+ax.set_ylim(ymin, ymax) 
+ax.grid(bGrid)
+ax.set_aspect('equal', adjustable='box')
 plt.colorbar(sc, label='Trace length, pixels', 
-                 orientation='horizontal', 
-                 fraction=0.04)
+                  orientation='horizontal', 
+                  fraction=0.04)
 p.set_clim(0, number_of_lines)
 plt.title('Trace length map, n=%i' % nTraces)
 plt.savefig("fpqTraceLengthMap.png", dpi=600)

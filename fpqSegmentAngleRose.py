@@ -25,6 +25,7 @@ import numpy as np
 
 #   defaults 
 CM2INCHES = 0.3937 
+DEG2RAD = np.pi / 180.0 
 bGrid = False 
 bEqualArea = False 
 nBinWidth = 10  
@@ -69,13 +70,23 @@ nMax = max(n)
 plt.figure(figsize=(xSize, ySize))
 plt.subplot(111, projection='polar')
 coll = fpq.rose(segangle, bins=nBins, 
-                bidirectional=True, eqarea=True, 
+                bidirectional=True, eqarea=False, 
                 color=sColour)
 plt.xticks(np.radians(range(0, 360, 45)), 
            ['0', '45', '90', '135', '180', '215', '270', '315'])
 plt.rgrids(range(0, int(round(nMax*1.1)), int(round((nMax*1.1)/5))), angle=330)
 plt.ylim(0, int(round(nMax*1.1)))
 plt.title('Segment strikes, n=%i' % nSegs)
-plt.savefig("fpqSegmentAngleRose.png", dpi=600)
+plt.savefig("fpqSegmentAngleRose1.png", dpi=600)
+
+segangle2 = np.asanyarray(segangle)
+plt.figure(figsize=(xSize, ySize))
+plt.subplot(111, projection='polar')
+ax = plt.gca()
+fpq.rose_plot(ax, -segangleDoubled*DEG2RAD, offset=90*DEG2RAD, bins=nBins, start_zero=False)
+ax.invert_xaxis()
+#plt.ylim(0, int(round(np.sqrt(nMax)*1.1)))
+plt.title('Segment strikes, n=%i' % nSegs)
+plt.savefig("fpqSegmentAngleRose2.png", dpi=600)
 
 print('Plotted %5d segments & angles' % nSegs)

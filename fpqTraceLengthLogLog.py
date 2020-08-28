@@ -35,9 +35,6 @@ for sArg in sys.argv[1:]:
     if "-I" in sArg:
         fn = sArg[2:]
         bFilename = True 
-    #   grid on 
-    if "-G" in sArg: 
-        bGrid = True 
     #   number of bins 
     if "-B" in sArg:
         nBins = int(sArg[2:])
@@ -54,20 +51,34 @@ tracelengths = fpq.getTraceLengths(xnodelist, ynodelist)
 nTraces = len(tracelengths)
 incTraceLength = (max(tracelengths)-min(tracelengths))/nBins
 traceBins = np.arange(min(tracelengths), 
-                      max(tracelengths)+incTraceLength, 
+                      max(tracelengths)+2*incTraceLength, 
                       incTraceLength)
-nlog, binlog, patchlog = plt.hist(tracelengths, bins=traceBins)
-#nlog, binlog, patchlog = plt.hist(tracelengths, bins=22)
+nlog, binlog = plt.histogram(tracelengths, bins=traceBins)
 
 #   plot the segment length distribution 
 fig, ax = plt.subplots(figsize=(xSize,ySize))
 plt.loglog(binlog[0:-1], nlog, 'o')
 plt.xlabel('Trace length, pixels')
 plt.ylabel('Count')
-plt.xlim(1, 500)
-plt.ylim(0.1, 100)
-plt.grid(bGrid, which='both')
-plt.title('Trace length distribution, n=%i' % nTraces)
-plt.savefig("fpqTraceLengthLogLog.png", dpi=600)
+plt.xlim(min(tracelengths)*.9, max(tracelengths)*1.1)
+plt.grid(True, which='both')
+plt.title('Trace length density distribution, n=%i' % nTraces)
+plt.savefig("fpqTraceLengthLogLogDensity.png", dpi=600)
+
+traceBins = np.arange(min(tracelengths), 
+                      max(tracelengths)+2*incTraceLength, 
+                      1)
+nlog, binlog = plt.histogram(tracelengths, bins=traceBins)
+cumsum = np.cumsum(nlog)
+#   plot the cumulative segment length distribution 
+fig, ax = plt.subplots(figsize=(xSize,ySize))
+plt.loglog(binlog[0:-1], max(cumsum)-cumsum, 'o')
+plt.xlabel('Trace length, pixels')
+plt.ylabel('Count')
+plt.xlim(min(tracelengths)*.9, max(tracelengths)*1.1)
+plt.grid(True, which='both')
+plt.title('Trace length cumulative distribution, n=%i' % nTraces)
+plt.savefig("fpqTraceLengthLogLogCumulative.png", dpi=600)
+
 
 print('Plotted %5d traces & lengths' % nTraces)

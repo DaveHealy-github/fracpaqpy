@@ -36,7 +36,6 @@ def getNodes(fn):
         nodeylist = [] 
     
         #  Read and print the entire file line by line
-        i = 0 
         for line in reader:
             
     #        print('\n', line, end='')
@@ -45,7 +44,6 @@ def getNodes(fn):
             pointarray = np.array 
             #   one line is one trace, variable number of nodes 
             pointarray = [float(x) for x in line.split()]
-            
             #   how many nodes?
             nNodesThisTrace = int(len(pointarray)/2)
             
@@ -64,9 +62,6 @@ def getNodes(fn):
                     
                 nodexlist.append(xcoord)
                 nodeylist.append(ycoord) 
-    
-            #   increment the line (trace) counter 
-            i = i + 1 
     
     NodeList = nodexlist, nodeylist
     
@@ -144,21 +139,27 @@ def getTraceLengths(xlist, ylist):
                     
     return lengthlist
 
-def getPlotLimits(nodelist):
+def getPlotLimits(xnodelist, ynodelist):
       
-    N = len(nodelist) 
+    N = len(xnodelist) 
     xmin = ymin = +9e38 
     xmax = ymax = -9e38 
     
     for i in range(0, N):
-        if nodelist[i][0] < xmin:
-            xmin = nodelist[i][0] 
-        if nodelist[i][1] < ymin:
-            ymin = nodelist[i][1] 
-        if nodelist[i][0] > xmax:
-            xmax = nodelist[i][0] 
-        if nodelist[i][1] > ymax:
-            ymax = nodelist[i][1] 
+
+        for j in range(0, len(xnodelist[i])):  
+            
+            if xnodelist[i][j] < xmin:
+                xmin = xnodelist[i][j] 
+            if xnodelist[i][j] > xmax:
+                xmax = xnodelist[i][j] 
+
+        for j in range(0, len(ynodelist[i])):
+
+            if ynodelist[i][j] < ymin:
+                ymin = ynodelist[i][j] 
+            if ynodelist[i][j] > ymax:
+                ymax = ynodelist[i][j] 
 
     return xmin, xmax, ymin, ymax 
 
@@ -184,9 +185,11 @@ def rose(azimuths, z=None, ax=None, bins=30, bidirectional=False,
             A function to reduce the binned z values with. Alternately, if the
             string "count" is passed in, the displayed bars will be colored by
             their y-value (the number of azimuths measurements in that bin).
+            
+        Additional keyword arguments are passed on to PatchCollection.
+        
         color: colour string - added by D Healy, Jul 2020 
         eqarea: boolean for equal area projection - added by D Healy, Jul 2020 
-        Additional keyword arguments are passed on to PatchCollection.
 
     Returns:
     --------
@@ -196,6 +199,11 @@ def rose(azimuths, z=None, ax=None, bins=30, bidirectional=False,
     -------
     Joe Kington 2013 
         taken from https://stackoverflow.com/questions/16264837/how-does-one-add-a-colorbar-to-a-polar-plot-rose-diagram
+        
+    Change log:
+    -----------
+    Dave Healy 2020 
+        added parameters for color, eqarea     
     '''
     azimuths = np.asanyarray(azimuths)
     if color_by == 'count':
@@ -217,7 +225,8 @@ def rose(azimuths, z=None, ax=None, bins=30, bidirectional=False,
     azimuths[azimuths < 0] += 360
     counts, edges = np.histogram(azimuths, range=[0, 360], bins=bins)
     if eqarea:
-        print('Hello') 
+        print('Hello')
+        counts = np.sqrt(counts)
     if z is not None:
         idx = np.digitize(azimuths, edges)
         z = np.array([color_by(z[idx == i]) for i in range(1, idx.max() + 1)])
@@ -235,6 +244,11 @@ def colored_bar(left, height, z=None, width=0.8, bottom=0, ax=None, color='b', *
     -------
     Joe Kington 2013 
         taken from https://stackoverflow.com/questions/16264837/how-does-one-add-a-colorbar-to-a-polar-plot-rose-diagram
+
+    Change log:
+    -----------
+    Dave Healy 2020 
+        added parameters for color, eqarea     
     '''
     if ax is None:
         ax = plt.gca()
@@ -248,3 +262,49 @@ def colored_bar(left, height, z=None, width=0.8, bottom=0, ax=None, color='b', *
     ax.add_collection(coll)
 #    ax.autoscale()
     return coll
+
+def rose_plot(ax, angles, bins=16, density=None, offset=0, lab_unit="degrees",
+              start_zero=False, **param_dict):
+    """
+    Plot polar histogram of angles on ax. ax must have been created using
+    subplot_kw=dict(projection='polar'). Angles are expected in radians.
+    """
+    # Wrap angles to [-pi, pi)
+#    angles = (angles + np.pi) % (2*np.pi) - np.pi
+
+    # Set bins symetrically around zero
+    if start_zero:
+        # To have a bin edge at zero use an even number of bins
+        if bins % 2:
+            bins += 1
+        bins = np.linspace(0.0, 2*np.pi, num=bins+1)
+
+    # Bin data and record counts
+    count, bin = np.histogram(angles, bins=bins)
+
+    # Compute width of each bin
+    widths = np.diff(bin)
+
+    # By default plot density (frequency potentially misleading)
+    if density is None or density is True:
+        # Area to assign each bin
+        area = count / angles.size
+        # Calculate corresponding bin radius
+        radius = (area / np.pi)**.5
+    else:
+        radius = count
+
+    # Plot data on ax
+    ax.bar(bin[:-1], radius, zorder=1, align='edge', width=widths,
+           edgecolor='C0', fill=True, linewidth=1)
+
+    # Set the direction of the zero angle
+    ax.set_theta_offset(offset)
+
+    # Remove ylabels, they are mostly obstructive and not informative
+    ax.set_yticks([])
+
+    if lab_unit == "radians":
+        label = ['$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$',
+                  r'$\pi$', r'$5\pi/4$', r'$3\pi/2$', r'$7\pi/4$']
+        ax.set_xticklabels(label)
