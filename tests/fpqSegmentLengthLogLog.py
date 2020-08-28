@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jul 29 13:51:24 2020
+Created on Fri Jul 31 14:12:03 2020
 
-fpqTraceLengthLogLog
+fpqSegmentLengthLogLog.py
 
-log-log plot of trace lengths, from an input file of x,y nodes 
+log-log plot of segment lengths, from an input file of x,y nodes 
 
 input:
     name of ascii text file of x,y nodes 
@@ -23,7 +23,7 @@ import numpy as np
 
 #   defaults 
 CM2INCHES = 0.3937 
-bGrid = False 
+bGrid = True 
 nBins = 20  
 xSize = 15.0 * CM2INCHES 
 ySize = 15.0 * CM2INCHES   
@@ -41,44 +41,43 @@ for sArg in sys.argv[1:]:
         
 #   filename is mandatory         
 if not bFilename:
-    sys.exit('Usage: python3 fpqTraceLengthLogLog.py -I<inputfilename>')
+    sys.exit('Usage: python3 fpqSegmentLengthLogLog.py -I<inputfilename>')
 
 #   get nodes and lengths 
 nodelist = fpq.getNodes(fn)
 xnodelist = nodelist[0] 
 ynodelist = nodelist[1]
-tracelengths = fpq.getTraceLengths(xnodelist, ynodelist)
-nTraces = len(tracelengths)
-incTraceLength = (max(tracelengths)-min(tracelengths))/nBins
-traceBins = np.arange(min(tracelengths), 
-                      max(tracelengths)+2*incTraceLength, 
-                      incTraceLength)
-nlog, binlog = plt.histogram(tracelengths, bins=traceBins)
+seglengths = fpq.getSegLengths(xnodelist, ynodelist)
+nTraces = len(seglengths)
+incSegLength = (max(seglengths)-min(seglengths))/nBins
+segBins = np.arange(min(seglengths), 
+                      max(seglengths)+2*incSegLength, 
+                      incSegLength)
+nlog, binlog = plt.histogram(seglengths, bins=segBins)
 
 #   plot the segment length distribution 
 fig, ax = plt.subplots(figsize=(xSize,ySize))
 plt.loglog(binlog[0:-1], nlog, 'o')
 plt.xlabel('Trace length, pixels')
 plt.ylabel('Count')
-plt.xlim(min(tracelengths)*.9, max(tracelengths)*1.1)
+plt.xlim(min(seglengths)*.95, max(seglengths)*1.05)
 plt.grid(True, which='both')
-plt.title('Trace length density distribution, n=%i' % nTraces)
-plt.savefig("fpqTraceLengthLogLogDensity.png", dpi=600)
+plt.title('Segment length distribution, n=%i' % nTraces)
+plt.savefig("fpqSegmentLengthLogLogDensity.png", dpi=600)
 
-traceBins = np.arange(min(tracelengths), 
-                      max(tracelengths)+2*incTraceLength, 
+segBins = np.arange(min(seglengths), 
+                      max(seglengths)+2*incSegLength, 
                       1)
-nlog, binlog = plt.histogram(tracelengths, bins=traceBins)
+nlog, binlog = plt.histogram(seglengths, bins=segBins)
 cumsum = np.cumsum(nlog)
 #   plot the cumulative segment length distribution 
 fig, ax = plt.subplots(figsize=(xSize,ySize))
 plt.loglog(binlog[0:-1], max(cumsum)-cumsum, 'o')
 plt.xlabel('Trace length, pixels')
 plt.ylabel('Count')
-plt.xlim(min(tracelengths)*.9, max(tracelengths)*1.1)
+plt.xlim(min(seglengths)*.9, max(seglengths)*1.1)
 plt.grid(True, which='both')
-plt.title('Trace length cumulative distribution, n=%i' % nTraces)
-plt.savefig("fpqTraceLengthLogLogCumulative.png", dpi=600)
+plt.title('Segment length cumulative distribution, n=%i' % nTraces)
+plt.savefig("fpqSegmentLengthLogLogCumulative.png", dpi=600)
 
-
-print('Plotted %5d traces & lengths' % nTraces)
+print('Plotted %5d segments & lengths' % nTraces)

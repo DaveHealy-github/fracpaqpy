@@ -22,8 +22,8 @@ import matplotlib.pylab as plt
 import sys 
 
 #   defaults 
-sColour = 'b' 
-bGrid = True 
+sColour = 'C0' 
+bGrid = False 
  
 #   process command line arguments; filename is mandatory 
 bFilename = False 
@@ -50,9 +50,7 @@ nodeylist = nodes[1]
 #   get some stats 
 nNodes = int(sum(len(x) for x in nodexlist)) 
 #   get plot limits 
-nodelist = nodexlist.copy()
-nodelist.extend(nodeylist.copy())
-xmin, xmax, ymin, ymax = fpq.getPlotLimits(nodelist) 
+xmin, xmax, ymin, ymax = fpq.getPlotLimits(nodexlist, nodeylist) 
 
 #   plot the traces 
 plt.figure(figsize=(6,6))

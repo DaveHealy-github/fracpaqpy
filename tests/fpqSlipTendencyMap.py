@@ -110,9 +110,7 @@ for t in range(0, nTraces):
 sc = mc.LineCollection(segments, colors=segcolours, linewidths=1, cmap=cmo.cm.thermal)
 
 #   get plot limits 
-nodelist = xnodelist 
-nodelist.extend(ynodelist)
-xmin, xmax, ymin, ymax = fpq.getPlotLimits(nodelist) 
+xmin, xmax, ymin, ymax = fpq.getPlotLimits(xnodelist, ynodelist) 
  
 #   plot the map 
 fig, ax = plt.subplots(figsize=(xSize,ySize))
