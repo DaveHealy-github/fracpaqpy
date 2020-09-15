@@ -12,4 +12,4 @@ For now, fracpaqpy is maintained by Dave Healy.  But soon, I'll open it up for g
 # Credits 
 fracpaqpy is based on the MATLAB version of FracPaQ, written by Dave Healy, Roberto Rizzo, and others. 
 # License 
-fracpaqpy is open source, free software. 
+fracpaqpy is open source, free software; licensed under GNU GPL v3.
